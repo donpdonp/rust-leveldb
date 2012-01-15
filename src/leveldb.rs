@@ -13,6 +13,7 @@ import core::either::*;
 import core::vec;
 import core::ptr::{addr_of};
 import std::io;
+import core::ctypes::{c_int, c_uint, long, size_t};
 
 #[link_args="-lpthread -lstdc++"]
 native mod leveldb {
@@ -46,8 +47,8 @@ native mod leveldb {
         db: *leveldb_t,
         opts: *leveldb_readoptions_t,
         key: *u8,
-        klen: ctypes::size_t,
-        vlen: *ctypes::size_t,
+        klen: size_t,
+        vlen: *size_t,
         errptr: **u8
     ) -> *u8;
 
@@ -55,9 +56,9 @@ native mod leveldb {
         db: *leveldb_t,
         opts: *leveldb_writeoptions_t,
         key: *u8,
-        klen: ctypes::size_t,
+        klen: size_t,
         val: *u8,
-        vlen: ctypes::size_t,
+        vlen: size_t,
         errptr: **u8
     );
 
@@ -65,7 +66,7 @@ native mod leveldb {
         db: *leveldb_t,
         opts: *leveldb_writeoptions_t,
         key: *u8,
-        klen: ctypes::size_t,
+        klen: size_t,
         errptr: **u8
     );
 
@@ -97,11 +98,11 @@ native mod leveldb {
 
     fn leveldb_approximate_sizes(
         db: *leveldb_t,
-        num_ranges: int,
+        num_ranges: c_int,
         range_start_key: **u8,
-        range_start_key_len: *ctypes::size_t,
+        range_start_key_len: *size_t,
         range_limit_key: **u8,
-        range_limit_key_len: *ctypes::size_t,
+        range_limit_key_len: *size_t,
         sizes: *u64
     );
 
@@ -123,13 +124,13 @@ native mod leveldb {
     fn leveldb_iter_seek_to_first(it: *leveldb_iterator_t);
     fn leveldb_iter_seek_to_last(it: *leveldb_iterator_t);
     fn leveldb_iter_seek(it: *leveldb_iterator_t,
-                         key: *u8, klen: ctypes::size_t);
+                         key: *u8, klen: size_t);
     fn leveldb_iter_next(it: *leveldb_iterator_t);
     fn leveldb_iter_prev(it: *leveldb_iterator_t);
     fn leveldb_iter_key(it: *leveldb_iterator_t,
-                        klen: ctypes::size_t) -> *u8;
+                        klen: size_t) -> *u8;
     fn leveldb_iter_value(it: *leveldb_iterator_t,
-                          vlen: *ctypes::size_t) -> *u8;
+                          vlen: *size_t) -> *u8;
     fn leveldb_iter_get_error(it: *leveldb_iterator_t, errptr: **u8);
 
     // Write batch
@@ -139,11 +140,11 @@ native mod leveldb {
     fn leveldb_writebatch_clear(wb: *leveldb_writebatch_t);
     fn leveldb_writebatch_put(
         wb: *leveldb_writebatch_t,
-        key: *u8, klen: ctypes::size_t,
-        val: *u8, klen: ctypes::size_t);
+        key: *u8, klen: size_t,
+        val: *u8, klen: size_t);
     fn leveldb_writebatch_delete(
         wb: *leveldb_writebatch_t,
-        key: *u8, klen: ctypes::size_t);
+        key: *u8, klen: size_t);
 
     /* FIXME: how to passing function pointers?
     fn leveldb_writebatch_iterate(
@@ -168,11 +169,11 @@ native mod leveldb {
     fn leveldb_options_set_info_log(
         opts: *leveldb_options_t, g: *leveldb_logger_t);
     fn leveldb_options_set_write_buffer_size(
-        opts: *leveldb_options_t, x: uint);
+        opts: *leveldb_options_t, x: size_t);
     fn leveldb_options_set_max_open_files(
-        opts: *leveldb_options_t, x: int);
+        opts: *leveldb_options_t, x: c_int);
     fn leveldb_options_set_block_size(
-        opts: *leveldb_options_t, x: uint);
+        opts: *leveldb_options_t, x: size_t);
     fn leveldb_options_set_block_restart_interval(
         opts: *leveldb_options_t, x: int);
     fn leveldb_options_set_comparator(
@@ -196,7 +197,7 @@ native mod leveldb {
 
     /* Cache */
 
-    fn leveldb_cache_create_lru(capacity: ctypes::size_t) -> *leveldb_cache_t;
+    fn leveldb_cache_create_lru(capacity: size_t) -> *leveldb_cache_t;
     fn leveldb_cache_destroy(cache: *leveldb_cache_t);
 
     /* Env */
@@ -222,12 +223,12 @@ tag option {
     paranoid_checks;
     // env;
     // log;
-    write_buffer_size(uint);
-    max_open_files(int);
+    write_buffer_size(size_t);
+    max_open_files(c_int);
     // block_cache();
-    block_size(uint);
-    block_restart_interval(int);
-    compression(compression_type);
+    block_size(size_t);
+    block_restart_interval(c_int);
+    compression(c_int);
 }
 
 type options = [option];
@@ -330,7 +331,7 @@ fn open(opts: options, name: str) -> either::t<str, db> unsafe {
 impl db_util for db {
     fn get(ropts: read_options, key: str)
         -> either::t<str, str> unsafe {
-        let vlen: ctypes::size_t = 0u;
+        let vlen: size_t = 0u;
         let err: *u8 = ptr::null();
         let copts = to_c_readoptions(ropts);
         ret str::as_buf(key) {|kb|
