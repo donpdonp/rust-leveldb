@@ -15,6 +15,30 @@ import core::ptr::{addr_of};
 import std::io;
 import core::ctypes::{c_int, c_uint, long, size_t};
 
+export open;
+export db;
+
+iface db {
+    fn get(ropts: read_options, key: str) -> either::t<str, str>;
+    fn put(opts: write_options, key: str, val: str);
+    fn delete(opts: write_options, key: str);
+    fn write(opts: write_options, wb: write_batch);
+    fn close();
+}
+
+fn open(opts: options, name: str) -> either::t<str, db> unsafe {
+    let copts = to_c_options(opts);
+    let err : *u8 = ptr::null();
+    ret str::as_buf(name) {|cname|
+        let r = leveldb::leveldb_open(copts, cname, ptr::addr_of(err));
+        if r == ptr::null() {
+            either::left(str::from_cstr(err))
+        } else {
+            either::right(r as db)
+        }
+    };
+}
+
 #[link_args="-lpthread -lstdc++"]
 native mod leveldb {
     type leveldb_t;
@@ -208,7 +232,7 @@ native mod leveldb {
     fn leveldb_env_destroy(env: *leveldb_env_t);
 }
 
-type db = *leveldb::leveldb_t;
+type db_ = *leveldb::leveldb_t;
 type opts = leveldb::leveldb_options_t;
 type read_optioin = *leveldb::leveldb_readoptions_t;
 type wopts = leveldb::leveldb_writeoptions_t;
@@ -317,20 +341,7 @@ fn to_c_writeoptions(opts: write_options)
     ret copts;
 }
 
-fn open(opts: options, name: str) -> either::t<str, db> unsafe {
-    let copts = to_c_options(opts);
-    let err : *u8 = ptr::null();
-    ret str::as_buf(name) {|cname|
-        let r = leveldb::leveldb_open(copts, cname, ptr::addr_of(err));
-        if r == ptr::null() {
-            either::left(str::from_cstr(err))
-        } else {
-            either::right(r)
-        }
-    };
-}
-
-impl db_util for db {
+impl of db for db_ {
     fn get(ropts: read_options, key: str)
         -> either::t<str, str> unsafe {
         let vlen: size_t = 0u;
@@ -387,7 +398,6 @@ impl db_util for db {
             fail str::from_cstr(err);
         }
     }
-
 
     fn close() {
         leveldb::leveldb_close(self);
