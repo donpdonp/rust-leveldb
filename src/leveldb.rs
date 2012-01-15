@@ -158,6 +158,8 @@ native mod leveldb {
     // options
     fn leveldb_options_create() -> *leveldb_options_t;
     fn leveldb_options_destroy(opts: *leveldb_options_t);
+    fn leveldb_options_set_comparator(
+        opts: *leveldb_options_t, c: *leveldb_comparator_t);
     fn leveldb_options_set_create_if_missing(
         opts: *leveldb_options_t, x: u8);
     fn leveldb_options_set_error_if_exists(
@@ -175,9 +177,9 @@ native mod leveldb {
     fn leveldb_options_set_block_size(
         opts: *leveldb_options_t, x: size_t);
     fn leveldb_options_set_block_restart_interval(
-        opts: *leveldb_options_t, x: int);
-    fn leveldb_options_set_comparator(
-        opts: *leveldb_options_t, c: int);
+        opts: *leveldb_options_t, x: c_int);
+    fn leveldb_options_set_compression(
+        opts: *leveldb_options_t, z: c_int);
 
     // read options
     fn leveldb_readoptions_create() -> *leveldb_readoptions_t;
@@ -212,10 +214,10 @@ type read_optioin = *leveldb::leveldb_readoptions_t;
 type wopts = leveldb::leveldb_writeoptions_t;
 type write_batch = *leveldb::leveldb_writebatch_t;
 
-type compression_type = int;
+// type compression_type = int;
 
-const kNoCompression     :int = 0x0;
-const kSnappyCompression :int = 0x1;
+const no_compression :c_int = 0i32;
+const snappy_compression :c_int = 1i32;
 
 tag option {
     create_if_missing;
@@ -276,7 +278,7 @@ fn to_c_options(opts: options) -> *leveldb::leveldb_options_t {
             leveldb::leveldb_options_set_block_restart_interval(copts, int);
           }
           compression(ct) {
-            leveldb::leveldb_options_set_comparator(copts, ct);
+            leveldb::leveldb_options_set_compression(copts, ct);
           }
         }
     }
