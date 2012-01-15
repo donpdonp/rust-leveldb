@@ -1,10 +1,22 @@
 use leveldb;
 use std;
 
-// FIXME: how to import impl?
-// import leveldb::db_util::{open, get};
+import leveldb::*;
+import std::io;
 
 #[test]
-fn empty() {
+fn hello() {
+    alt open([create_if_missing], "/tmp/testdb") {
+      either::right(r) {
+        let secret = "leveldb";
+        r.put([], "hello", secret);
+        alt r.get([], "hello") {
+          either::right(v) {
+            assert v == secret;
+            io::println("ok");
+            r.close();
+          }
+        }
+      }
+    }
 }
-

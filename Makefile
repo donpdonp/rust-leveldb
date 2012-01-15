@@ -1,10 +1,7 @@
 DUMMY := dummy.so
-all: ${DUMMY} main
+all: ${DUMMY}
 
 test_suites := ./test/test.rs
-
-main: dummy.so
-	rustc -L . src/leveldb.rs -o main
 
 dummy.so: src/leveldb.rs
 	rustc --lib src/leveldb.rs -o dummy.so

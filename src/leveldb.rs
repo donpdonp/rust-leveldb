@@ -17,6 +17,7 @@ import core::ctypes::{c_int, c_uint, long, size_t};
 
 export open;
 export db;
+export option, read_option, write_option;
 
 iface db {
     fn get(ropts: read_options, key: str) -> either::t<str, str>;
@@ -401,21 +402,5 @@ impl of db for db_ {
 
     fn close() {
         leveldb::leveldb_close(self);
-    }
-}
-
-fn main() {
-    alt open([create_if_missing], "/tmp/testdb") {
-      either::right(r) {
-        let secret = "leveldb";
-        r.put([], "hello", secret);
-        alt r.get([], "hello") {
-          either::right(v) {
-            assert v == secret;
-            io::println("ok");
-            r.close();
-          }
-        }
-      }
     }
 }
