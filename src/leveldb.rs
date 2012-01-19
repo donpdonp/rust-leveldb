@@ -278,13 +278,13 @@ fn to_c_options(opts: options) -> *leveldb::leveldb_options_t {
     let copts = leveldb::leveldb_options_create();
     for o in opts {
         alt o {
-          create_if_missing. {
+          create_if_missing {
             leveldb::leveldb_options_set_create_if_missing(copts, 1u8);
           }
-          error_if_exists. {
+          error_if_exists {
             leveldb::leveldb_options_set_error_if_exists(copts, 1u8);
           }
-          paranoid_checks. {
+          paranoid_checks {
             leveldb::leveldb_options_set_paranoid_checks(copts, 1u8);
           }
           // env;
@@ -315,10 +315,10 @@ fn to_c_readoptions(opts: read_options)
     let copts = leveldb::leveldb_readoptions_create();
     for o in opts {
         alt o {
-          verify_checksum. {
+          verify_checksum {
             leveldb::leveldb_readoptions_set_verify_checksums(copts, 1u8);
           }
-          full_cache. {
+          full_cache {
             leveldb::leveldb_readoptions_set_fill_cache(copts, 1u8);
           }
           use_snapshot(snapshot) {
@@ -334,7 +334,7 @@ fn to_c_writeoptions(opts: write_options)
     let copts = leveldb::leveldb_writeoptions_create();
     for o in opts {
         alt o {
-          sync. {
+          sync {
             leveldb::leveldb_writeoptions_set_sync(copts, 1u8);
           }
         }
