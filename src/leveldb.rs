@@ -244,33 +244,33 @@ type write_batch = *leveldb::leveldb_writebatch_t;
 const no_compression :c_int = 0i32;
 const snappy_compression :c_int = 1i32;
 
-tag option {
-    create_if_missing;
-    error_if_exists;
-    paranoid_checks;
-    // env;
-    // log;
-    write_buffer_size(size_t);
-    max_open_files(c_int);
-    // block_cache();
-    block_size(size_t);
-    block_restart_interval(c_int);
-    compression(c_int);
+enum option {
+    create_if_missing,
+    error_if_exists,
+    paranoid_checks,
+    // env,
+    // log,
+    write_buffer_size(size_t),
+    max_open_files(c_int),
+    // block_cache(),
+    block_size(size_t),
+    block_restart_interval(c_int),
+    compression(c_int),
 }
 
 type options = [option];
 
 type snapshot = *leveldb::leveldb_snapshot_t;
 
-tag read_option {
-    verify_checksum;
-    full_cache;
-    use_snapshot(snapshot);
+enum read_option {
+    verify_checksum,
+    full_cache,
+    use_snapshot(snapshot),
 }
 type read_options = [read_option];
 
-tag write_option {
-    sync;
+enum write_option {
+    sync,
 }
 type write_options = [write_option];
 
