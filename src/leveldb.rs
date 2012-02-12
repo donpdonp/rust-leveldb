@@ -9,7 +9,7 @@
 
 use std;
 
-import core::either::*;
+import core::result;
 import core::vec;
 import core::ptr::{addr_of};
 import std::io;
@@ -20,22 +20,22 @@ export db;
 export option, read_option, write_option;
 
 iface db {
-    fn get(ropts: read_options, key: str) -> either::t<str, str>;
+    fn get(ropts: read_options, key: str) -> result::t<str, str>;
     fn put(opts: write_options, key: str, val: str);
     fn delete(opts: write_options, key: str);
     fn write(opts: write_options, wb: write_batch);
     fn close();
 }
 
-fn open(opts: options, name: str) -> either::t<str, db> unsafe {
+fn open(opts: options, name: str) -> result::t<db, str> unsafe {
     let copts = to_c_options(opts);
     let err : *u8 = ptr::null();
     ret str::as_buf(name) {|cname|
         let r = leveldb::leveldb_open(copts, cname, ptr::addr_of(err));
         if r == ptr::null() {
-            either::left(str::from_cstr(err))
+            result::err(str::from_cstr(err))
         } else {
-            either::right(r as db)
+            result::ok(r as db)
         }
     };
 }
@@ -344,7 +344,7 @@ fn to_c_writeoptions(opts: write_options)
 
 impl of db for db_ {
     fn get(ropts: read_options, key: str)
-        -> either::t<str, str> unsafe {
+        -> result::t<str, str> unsafe {
         let vlen: size_t = 0u;
         let err: *u8 = ptr::null();
         let copts = to_c_readoptions(ropts);
@@ -353,9 +353,9 @@ impl of db for db_ {
                 self, copts, kb, str::byte_len(key),
                 ptr::addr_of(vlen), ptr::addr_of(err));
             if r == ptr::null() {
-                either::left(str::from_cstr(err))
+                result::err(str::from_cstr(err))
             } else {
-                either::right(str::from_cstr(r))
+                result::ok(str::from_cstr(r))
             }
         };
     }

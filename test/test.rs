@@ -7,16 +7,22 @@ import std::io;
 #[test]
 fn hello() {
     alt open([create_if_missing], "/tmp/testdb") {
-      either::right(r) {
+      result::ok(r) {
         let secret = "leveldb";
         r.put([], "hello", secret);
         alt r.get([], "hello") {
-          either::right(v) {
+          result::ok(v) {
             assert v == secret;
             io::println("ok");
             r.close();
           }
+          result::err(e) {
+            io::println(#fmt("error: %s", e));
+          }
         }
+      }
+      result::err(e) {
+        io::println(#fmt("error: %s", e));
       }
     }
 }
