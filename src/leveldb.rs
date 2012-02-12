@@ -56,7 +56,7 @@ enum leveldb_writablefile_t {}
 enum leveldb_writebatch_t {}
 enum leveldb_writeoptions_t {}
 
-#[link_args="-lpthread -lstdc++"]
+#[link_args="-lpthread -lstdc++ -lsnappy"]
 native mod leveldb {
     // DB Operations
 
