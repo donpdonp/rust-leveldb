@@ -40,24 +40,24 @@ fn open(opts: options, name: str) -> either::t<str, db> unsafe {
     };
 }
 
+enum leveldb_t {}
+enum leveldb_cache_t {}
+enum leveldb_comparator_t {}
+enum leveldb_env_t {}
+enum leveldb_filelock_t {}
+enum leveldb_iterator_t {}
+enum leveldb_logger_t {}
+enum leveldb_options_t {}
+enum leveldb_randomfile_t {}
+enum leveldb_readoptions_t {}
+enum leveldb_seqfile_t {}
+enum leveldb_snapshot_t {}
+enum leveldb_writablefile_t {}
+enum leveldb_writebatch_t {}
+enum leveldb_writeoptions_t {}
+
 #[link_args="-lpthread -lstdc++"]
 native mod leveldb {
-    type leveldb_t;
-    type leveldb_cache_t;
-    type leveldb_comparator_t;
-    type leveldb_env_t;
-    type leveldb_filelock_t;
-    type leveldb_iterator_t;
-    type leveldb_logger_t;
-    type leveldb_options_t;
-    type leveldb_randomfile_t;
-    type leveldb_readoptions_t;
-    type leveldb_seqfile_t;
-    type leveldb_snapshot_t;
-    type leveldb_writablefile_t;
-    type leveldb_writebatch_t;
-    type leveldb_writeoptions_t;
-
     // DB Operations
 
     fn leveldb_open(
@@ -233,11 +233,11 @@ native mod leveldb {
     fn leveldb_env_destroy(env: *leveldb_env_t);
 }
 
-type db_ = *leveldb::leveldb_t;
-type opts = leveldb::leveldb_options_t;
-type read_optioin = *leveldb::leveldb_readoptions_t;
-type wopts = leveldb::leveldb_writeoptions_t;
-type write_batch = *leveldb::leveldb_writebatch_t;
+type db_ = *leveldb_t;
+type opts = leveldb_options_t;
+type read_optioin = *leveldb_readoptions_t;
+type wopts = leveldb_writeoptions_t;
+type write_batch = *leveldb_writebatch_t;
 
 // type compression_type = int;
 
@@ -260,7 +260,7 @@ enum option {
 
 type options = [option];
 
-type snapshot = *leveldb::leveldb_snapshot_t;
+type snapshot = *leveldb_snapshot_t;
 
 enum read_option {
     verify_checksum,
@@ -274,7 +274,7 @@ enum write_option {
 }
 type write_options = [write_option];
 
-fn to_c_options(opts: options) -> *leveldb::leveldb_options_t {
+fn to_c_options(opts: options) -> *leveldb_options_t {
     let copts = leveldb::leveldb_options_create();
     for o in opts {
         alt o {
@@ -311,7 +311,7 @@ fn to_c_options(opts: options) -> *leveldb::leveldb_options_t {
 }
 
 fn to_c_readoptions(opts: read_options)
-    -> *leveldb::leveldb_readoptions_t {
+    -> *leveldb_readoptions_t {
     let copts = leveldb::leveldb_readoptions_create();
     for o in opts {
         alt o {
@@ -330,7 +330,7 @@ fn to_c_readoptions(opts: read_options)
 }
 
 fn to_c_writeoptions(opts: write_options)
-    -> *leveldb::leveldb_writeoptions_t {
+    -> *leveldb_writeoptions_t {
     let copts = leveldb::leveldb_writeoptions_create();
     for o in opts {
         alt o {
