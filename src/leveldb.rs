@@ -350,7 +350,7 @@ impl of db for db_ {
         let copts = to_c_readoptions(ropts);
         ret str::as_buf(key) {|kb|
             let r = leveldb::leveldb_get(
-                self, copts, kb, str::byte_len(key),
+                self, copts, kb, str::len_bytes(key),
                 ptr::addr_of(vlen), ptr::addr_of(err));
             if r == ptr::null() {
                 result::err(str::from_cstr(err))
@@ -367,8 +367,8 @@ impl of db for db_ {
             str::as_buf(val) {|bv|
                 leveldb::leveldb_put(
                     self, copts,
-                    bk, str::byte_len(key),
-                    bv, str::byte_len(val),
+                    bk, str::len_bytes(key),
+                    bv, str::len_bytes(val),
                     ptr::addr_of(err));
             }
         }
@@ -383,7 +383,7 @@ impl of db for db_ {
         str::as_buf(key) {|bk|
             leveldb::leveldb_delete(
                 self, copts,
-                bk, str::byte_len(key),
+                bk, str::len_bytes(key),
                 ptr::addr_of(err));
         }
         if err != ptr::null() {
