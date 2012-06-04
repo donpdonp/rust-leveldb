@@ -2,7 +2,7 @@ use leveldb;
 use std;
 
 import leveldb::*;
-import std::io;
+import core::io;
 
 #[test]
 fn hello() {

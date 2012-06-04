@@ -10,30 +10,28 @@
 use std;
 
 import core::result;
-import core::vec;
 import core::ptr::{addr_of};
-import std::io;
-import core::ctypes::{c_int, c_uint, long, size_t};
+import core::libc::{c_int, c_uint, size_t};
 
 export open;
 export db;
 export option, read_option, write_option;
 
 iface db {
-    fn get(ropts: read_options, key: str) -> result::t<str, str>;
+    fn get(ropts: read_options, key: str) -> result::result<str, str>;
     fn put(opts: write_options, key: str, val: str);
     fn delete(opts: write_options, key: str);
     fn write(opts: write_options, wb: write_batch);
     fn close();
 }
 
-fn open(opts: options, name: str) -> result::t<db, str> unsafe {
+fn open(opts: options, name: str) -> result::result<db, str> unsafe {
     let copts = to_c_options(opts);
     let err : *u8 = ptr::null();
     ret str::as_buf(name) {|cname|
         let r = leveldb::leveldb_open(copts, cname, ptr::addr_of(err));
         if r == ptr::null() {
-            result::err(str::from_cstr(err))
+            result::err(str::unsafe::from_buf(err))
         } else {
             result::ok(r as db)
         }
@@ -134,12 +132,12 @@ native mod leveldb {
     // Management operations
     fn leveldb_destroy_db(
         opts: *leveldb_options_t,
-        name: str::sbuf,
+        name: *u8,
         errptr: **u8);
 
     fn leveldb_repair_db(
         opts: *leveldb_options_t,
-        name: str::sbuf,
+        name: *u8,
         errptr: **u8);
 
     // Iterator
@@ -344,18 +342,18 @@ fn to_c_writeoptions(opts: write_options)
 
 impl of db for db_ {
     fn get(ropts: read_options, key: str)
-        -> result::t<str, str> unsafe {
+        -> result::result<str, str> unsafe {
         let vlen: size_t = 0u;
         let err: *u8 = ptr::null();
         let copts = to_c_readoptions(ropts);
         ret str::as_buf(key) {|kb|
             let r = leveldb::leveldb_get(
-                self, copts, kb, str::len_bytes(key),
+                self, copts, kb, str::len(key),
                 ptr::addr_of(vlen), ptr::addr_of(err));
             if r == ptr::null() {
-                result::err(str::from_cstr(err))
+                result::err(str::unsafe::from_buf(err))
             } else {
-                result::ok(str::from_cstr(r))
+                result::ok(str::unsafe::from_buf(r))
             }
         };
     }
@@ -367,13 +365,13 @@ impl of db for db_ {
             str::as_buf(val) {|bv|
                 leveldb::leveldb_put(
                     self, copts,
-                    bk, str::len_bytes(key),
-                    bv, str::len_bytes(val),
+                    bk, str::len(key),
+                    bv, str::len(val),
                     ptr::addr_of(err));
             }
         }
         if err != ptr::null() {
-            fail str::from_cstr(err);
+            fail str::unsafe::from_buf(err);
         }
     }
 
@@ -383,11 +381,11 @@ impl of db for db_ {
         str::as_buf(key) {|bk|
             leveldb::leveldb_delete(
                 self, copts,
-                bk, str::len_bytes(key),
+                bk, str::len(key),
                 ptr::addr_of(err));
         }
         if err != ptr::null() {
-            fail str::from_cstr(err);
+            fail str::unsafe::from_buf(err);
         }
     }
 
@@ -396,7 +394,7 @@ impl of db for db_ {
         let err: *u8 = ptr::null();
         leveldb::leveldb_write(self, copts, wb, ptr::addr_of(err));
         if err != ptr::null() {
-            fail str::from_cstr(err);
+            fail str::unsafe::from_buf(err);
         }
     }
 
