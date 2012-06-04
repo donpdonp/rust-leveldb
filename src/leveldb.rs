@@ -276,7 +276,7 @@ type write_options = [write_option];
 
 fn to_c_options(opts: options) -> *leveldb_options_t {
     let copts = leveldb::leveldb_options_create();
-    for o in opts {
+    for vec::each(opts) { |o|
         alt o {
           create_if_missing {
             leveldb::leveldb_options_set_create_if_missing(copts, 1u8);
@@ -313,7 +313,7 @@ fn to_c_options(opts: options) -> *leveldb_options_t {
 fn to_c_readoptions(opts: read_options)
     -> *leveldb_readoptions_t {
     let copts = leveldb::leveldb_readoptions_create();
-    for o in opts {
+    for vec::each(opts) { |o|
         alt o {
           verify_checksum {
             leveldb::leveldb_readoptions_set_verify_checksums(copts, 1u8);
@@ -332,7 +332,7 @@ fn to_c_readoptions(opts: read_options)
 fn to_c_writeoptions(opts: write_options)
     -> *leveldb_writeoptions_t {
     let copts = leveldb::leveldb_writeoptions_create();
-    for o in opts {
+    for vec::each(opts) { |o|
         alt o {
           sync {
             leveldb::leveldb_writeoptions_set_sync(copts, 1u8);
