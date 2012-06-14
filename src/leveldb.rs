@@ -343,12 +343,12 @@ fn to_c_writeoptions(opts: write_options)
 impl of db for db_ {
     fn get(ropts: read_options, key: str)
         -> result::result<str, str> unsafe {
-        let vlen: size_t = 0u;
+        let vlen: size_t = 0 as size_t;
         let err: *u8 = ptr::null();
         let copts = to_c_readoptions(ropts);
         ret str::as_buf(key) {|kb|
             let r = leveldb::leveldb_get(
-                self, copts, kb, str::len(key),
+                self, copts, kb, str::len(key) as size_t,
                 ptr::addr_of(vlen), ptr::addr_of(err));
             if r == ptr::null() {
                 result::err(str::unsafe::from_buf(err))
@@ -365,8 +365,8 @@ impl of db for db_ {
             str::as_buf(val) {|bv|
                 leveldb::leveldb_put(
                     self, copts,
-                    bk, str::len(key),
-                    bv, str::len(val),
+                    bk, str::len(key) as size_t,
+                    bv, str::len(val) as size_t,
                     ptr::addr_of(err));
             }
         }
@@ -381,7 +381,7 @@ impl of db for db_ {
         str::as_buf(key) {|bk|
             leveldb::leveldb_delete(
                 self, copts,
-                bk, str::len(key),
+                bk, str::len(key) as size_t,
                 ptr::addr_of(err));
         }
         if err != ptr::null() {
