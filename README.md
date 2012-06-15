@@ -1,6 +1,9 @@
 Rust binding for LevelDB
 http://code.google.com/p/leveldb/
 
+Sample Code
+-----------
+
 ```rust
 use leveldb;
 
